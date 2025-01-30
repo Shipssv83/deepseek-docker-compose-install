@@ -1,0 +1,34 @@
+services:
+
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: openwebui
+    hostname: openwebui
+    restart: unless-stopped
+    ports:
+      - "${OPENWEBUI_PORT}:8080"
+    environment:
+      OLLAMA_BASE_URLS: ${OLLAMA_BASE_URL}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - open-webui-local:${WEBUI_VOLUME}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${OPENWEBUI_PORT}"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    hostname: ollama
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT}:11434"
+    volumes:
+      - ollama-local:${OLLAMA_VOLUME}
+
+volumes:
+  ollama-local:
+  open-webui-local:
